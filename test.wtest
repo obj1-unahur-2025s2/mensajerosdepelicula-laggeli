@@ -1,0 +1,121 @@
+import mensajeria.*
+import mensajeros.*
+import destinos.*
+
+describe "Llegan a destino" {
+  test "Roberto puede llevar un paquete que se encuentra pago en un camión con un acoplado" {
+    roberto.cambiarVehículo(camión)
+    camión.cambiarAcoplados(1)
+    paquete.pagar(50)
+    roberto.modificarPeso(90)
+    assert.equals(true, puenteBrooklyn.puedePasar(roberto))
+  }
+
+  test "Neo con crédito no puede llevar un paquete que no está pago a la matrix" {
+    neo.cambiarCrédito(false)
+    paquete.pagar(10)
+    assert.equals(false, matrix.puedePasar(neo))
+  }
+}
+
+describe "Testeo en la mensajería" {
+  test "Contratar a un mensajero; en este caso, Neo" {
+    mensajeria.contratarMensajero(neo)
+    assert.equals(true, mensajeria.mensajeros().contains(neo))
+  }
+  test "Despedir a un mensajero; en este caso, Neo" {
+    mensajeria.despedirMensajero(neo)
+    assert.equals(false, mensajeria.mensajeros().contains(neo))
+  }
+  test "Despedir a todos los mensajeros" {
+    mensajeria.despedirATodos()
+    assert.equals(true, mensajeria.mensajeros().isEmpty())
+  }
+  test "Analizar si el tamaño del personal de la mensajería es grande después de contratar a 3 mensajeros" {
+    mensajeria.contratarMensajero(roberto)
+    mensajeria.contratarMensajero(neo)
+    mensajeria.contratarMensajero(chuckNorris)
+    assert.equals(true, mensajeria.tamañoDeMensajería() > 2)
+  }
+  test "Un paquete puede ser entregado por el primer empleado de la empresa de mensajería; en este caso, Neo al ser el primer contratado, y al tener crédito, puede entregar un paquete en la matrix." {
+    mensajeria.despedirATodos()
+    mensajeria.contratarMensajero(neo)
+    neo.cambiarCrédito(true)
+    paquete.pagar(50)
+    assert.equals(true, mensajeria.mensajeros().first().puedeLlegar(matrix))
+  }
+  test "Conocer el peso del último mensajero contratado; en este caso, Neo" {
+    mensajeria.contratarMensajero(neo)
+    assert.equals(0, mensajeria.mensajeros().last().peso())
+  }
+}
+
+describe "Testeo en la mensajería II" {
+  test "Un paquete puede ser entregado por la empresa de mensajería; en este caso, el mensajero contratado es Neo" {
+    mensajeria.contratarMensajero(neo)
+    mensajeria.contratarMensajero(chuckNorris)
+    paquete.pagar(50)
+    assert.equals(true, mensajeria.algunoPuedeEntregar(paquete, puenteBrooklyn))
+  }
+  test "Obtener todos los mensajeros que pueden llevar un paquete dado" {
+    mensajeria.despedirATodos()
+    mensajeria.contratarMensajero(neo)
+    mensajeria.contratarMensajero(chuckNorris)
+    neo.cambiarCrédito(false)
+    paquete.pagar(50)
+    assert.equals([chuckNorris], mensajeria.mensajerosQuePuedenEntregar(paquete, matrix))
+  }
+  test "Mensajería con sobrepeso" {
+    mensajeria.despedirATodos()
+    mensajeria.contratarMensajero(chuckNorris)
+    mensajeria.contratarMensajero(roberto)
+    roberto.cambiarVehículo(camión)
+    camión.cambiarAcoplados(3)
+    assert.equals(true, mensajeria.tieneSobrepeso())
+  }
+  test "Enviar un paquete" {
+    mensajeria.contratarMensajero(neo)
+    neo.cambiarCrédito(true)
+    mensajeria.agregarUnPaqueteAPendiente(paquetito)
+    mensajeria.enviarPaquete(mensajeria.paquetesPendientes().last(), matrix)
+    assert.equals(false, mensajeria.paquetesPendientes().contains(paquetito))
+  }
+  test "Facturación de la empresa de mensajería" {
+    mensajeria.contratarMensajero(chuckNorris)
+    mensajeria.agregarUnPaqueteAPendiente(paquete)
+    mensajeria.agregarUnPaqueteAPendiente(paquetónViajero)
+    paquete.pagar(50)
+    paquetónViajero.añadirDestino(puenteBrooklyn)
+    paquetónViajero.pagar(100)
+    mensajeria.enviarMuchosPaquetes(mensajeria.paquetesPendientes(), puenteBrooklyn)
+    assert.equals(150, mensajeria.facturación())
+  }
+  test "Enviar un conjunto de paquetes" {
+    mensajeria.contratarMensajero(chuckNorris)
+    mensajeria.agregarUnPaqueteAPendiente(paquete)
+    mensajeria.agregarUnPaqueteAPendiente(paquetin)
+    mensajeria.agregarUnPaqueteAPendiente(paquetito)
+    paquete.pagar(50)
+    paquetin.pagar(5)
+    mensajeria.enviarMuchosPaquetes(mensajeria.paquetesPendientes(), puenteBrooklyn)
+    assert.equals(true, mensajeria.paquetesPendientes().isEmpty())
+  }
+  test "Enviar el paquete mas caro" {
+    mensajeria.contratarMensajero(chuckNorris)
+    mensajeria.agregarUnPaqueteAPendiente(paquete)
+    mensajeria.agregarUnPaqueteAPendiente(paquetin)
+    mensajeria.agregarUnPaqueteAPendiente(paquetito)
+    paquete.pagar(50)
+    paquetin.pagar(5)
+    var paqueteMasCaro = mensajeria.paquetePendienteMasCaro()
+    mensajeria.enviarPaquetePendienteMásCaro(matrix)
+    assert.equals(true, not mensajeria.paquetesPendientes().contains(paqueteMasCaro))
+  }
+  test "Trinity entrega un paquetin" {
+    mensajeria.contratarMensajero(trinity)
+    mensajeria.agregarUnPaqueteAPendiente(paquetin)
+    paquetin.pagar(5)
+    mensajeria.enviarPaquete(paquetin, matrix)
+    assert.equals(true, not mensajeria.paquetesPendientes().contains(paquetin))
+  }
+}
