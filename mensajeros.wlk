@@ -1,10 +1,6 @@
 object roberto {
-    var peso = 60
     var vehículo = bici
-    method peso() = peso + vehículo.peso()
-    method modificarPeso(unPeso) {
-        peso = unPeso
-    }
+    method peso() = 90 + vehículo.peso()
     method puedeLlamar() = false
     method puedeLlegar(unDestino) = unDestino.puedePasar(self)
     method cambiarVehículo(unVehículo) {

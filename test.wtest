@@ -7,7 +7,6 @@ describe "Llegan a destino" {
     roberto.cambiarVehículo(camión)
     camión.cambiarAcoplados(1)
     paquete.pagar(50)
-    roberto.modificarPeso(90)
     assert.equals(true, puenteBrooklyn.puedePasar(roberto))
   }
 
